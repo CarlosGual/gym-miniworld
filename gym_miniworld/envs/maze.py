@@ -112,6 +112,15 @@ class Maze(MiniWorldEnv):
 
         return obs, reward, done, info
 
+    def reset_task(self, task):
+        self._task = task
+        self._goal = task['goal']
+
+    def sample_tasks(self, num_tasks):
+        goals = self.np_random.uniform(self.low, self.high, size=(num_tasks, 2))
+        tasks = [{'goal': goal} for goal in goals]
+        return tasks
+
 class MazeS2(Maze):
     def __init__(self):
         super().__init__(num_rows=2, num_cols=2)

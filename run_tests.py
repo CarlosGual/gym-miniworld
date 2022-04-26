@@ -10,6 +10,8 @@ from gym_miniworld.entity import TextFrame
 
 env = gym.make('MiniWorld-Hallway-v0')
 
+env.reset()
+
 # Try stepping a few times
 for i in range(0, 10):
     obs, _, _, _ = env.step(0)
