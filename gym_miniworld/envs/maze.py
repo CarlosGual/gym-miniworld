@@ -1,7 +1,7 @@
 import numpy as np
 import math
 from gym import spaces
-from ..miniworld import MiniWorldEnv, Room
+from ..miniworld import MiniWorldEnv, Room, RandGen
 from ..entity import Box, ImageFrame
 from ..params import DEFAULT_PARAMS
 
@@ -16,6 +16,7 @@ class Maze(MiniWorldEnv):
         num_cols=8,
         room_size=3,
         max_episode_steps=None,
+        task={},
         **kwargs
     ):
         self.num_rows = num_rows
@@ -23,8 +24,13 @@ class Maze(MiniWorldEnv):
         self.room_size = room_size
         self.gap_size = 0.25
 
+        # Initialize the meta learning variables
+        self.rand = RandGen() # I need to declare twice the random geneerator due to how the super class is initialized
+        self._task = task
+        self._generator = task.get('generator', self.rand.subset([(0, 1), (0, -1), (-1, 0), (1, 0)], 4))
+
         super().__init__(
-            max_episode_steps = max_episode_steps or num_rows * num_cols * 24,
+            max_episode_steps=max_episode_steps or num_rows * num_cols * 24,
             **kwargs
         )
 
@@ -72,7 +78,7 @@ class Maze(MiniWorldEnv):
             visited.add(room)
 
             # Reorder the neighbors to visit in a random order
-            neighbors = self.rand.subset([(0,1), (0,-1), (-1,0), (1,0)], 4)
+            neighbors = self._generator
 
             # For each possible neighbor
             for dj, di in neighbors:
@@ -112,22 +118,25 @@ class Maze(MiniWorldEnv):
 
         return obs, reward, done, info
 
+    def sample_tasks(self, num_tasks):
+        generators = [self.rand.subset([(0, 1), (0, -1), (-1, 0), (1, 0)], 4) for _ in range(num_tasks)]
+        tasks = [{'generator': generator} for generator in generators]
+        return tasks
+
     def reset_task(self, task):
         self._task = task
-        self._goal = task['goal']
+        self._generator = task['generator']
 
-    def sample_tasks(self, num_tasks):
-        goals = self.np_random.uniform(self.low, self.high, size=(num_tasks, 2))
-        tasks = [{'goal': goal} for goal in goals]
-        return tasks
 
 class MazeS2(Maze):
     def __init__(self):
         super().__init__(num_rows=2, num_cols=2)
 
+
 class MazeS3(Maze):
     def __init__(self):
         super().__init__(num_rows=3, num_cols=3)
+
 
 class MazeS3Fast(Maze):
     def __init__(self, forward_step=0.7, turn_step=45):
