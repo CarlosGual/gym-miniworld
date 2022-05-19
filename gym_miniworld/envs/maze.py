@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import math
 from gym import spaces
 from ..miniworld import MiniWorldEnv, Room, RandGen
@@ -123,9 +124,28 @@ class Maze(MiniWorldEnv):
         tasks = [{'generator': generator} for generator in generators]
         return tasks
 
-    def reset_task(self, task):
+    def set_task(self, task):
         self._task = task
         self._generator = task['generator']
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        deepcopy = cls.__new__(cls)
+        memo[id(self)] = deepcopy
+
+        # This attributes don't support deepcopy directly
+        text_label_copy = self.__dict__["text_label"]
+        shadow_window_copy = self.__dict__["shadow_window"]
+        rooms_copy = self.__dict__["rooms"]
+        setattr(deepcopy, "text_label", text_label_copy)
+        setattr(deepcopy, "shadow_window", shadow_window_copy)
+        setattr(deepcopy, "rooms", rooms_copy)
+
+        # For the rest apply standart deepcopy
+        for k, v in self.__dict__.items():
+            if k not in ["text_label", "shadow_window", "rooms"]:
+                setattr(deepcopy, k, copy.deepcopy(v, memo))
+        return deepcopy
 
 
 class MazeS2(Maze):

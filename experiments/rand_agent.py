@@ -66,7 +66,7 @@ class Model(nn.Module):
 
 ##############################################################################
 
-env = gym.make('MiniWorld-Hallway-v0')
+env = gym.make('MiniWorld-MazeS3Fast-v0')
 
 num_actions = env.action_space.n
 print('num actions:', num_actions)
@@ -75,7 +75,7 @@ max_steps = env.max_episode_steps
 print('max episode steps:', max_steps)
 
 def evaluate(model, seed=0, num_episodes=100):
-    env = gym.make('MiniWorld-Hallway-v0')
+    env = gym.make('MiniWorld-MazeS3Fast-v0')
 
     num_success = 0
 
@@ -86,7 +86,7 @@ def evaluate(model, seed=0, num_episodes=100):
 
         obs = env.reset()
 
-        memory = Variable(torch.zeros([1, 128])).cuda()
+        memory = Variable(torch.zeros([1, 128]))
 
         while True:
 
@@ -112,7 +112,6 @@ best_score = 0
 
 for i in range(500):
     model = Model(num_actions)
-    model.cuda()
 
     s = evaluate(model)
 
@@ -124,7 +123,6 @@ for i in range(500):
 
 
     del model
-    torch.cuda.empty_cache()
 
 
 
