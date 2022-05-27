@@ -147,6 +147,24 @@ class Maze(MiniWorldEnv):
                 setattr(deepcopy, k, copy.deepcopy(v, memo))
         return deepcopy
 
+    def __getstate__(self):
+        """See `Object.__getstate__.
+
+        Returns:
+            dict: The instance’s dictionary to be pickled.
+
+        """
+        return dict(task=self._task)
+
+    def __setstate__(self, state):
+        """See `Object.__setstate__.
+
+        Args:
+            state (dict): Unpickled state of this object.
+
+        """
+        self.__init__(task=state['task'])
+
 
 class MazeS2(Maze):
     def __init__(self):
