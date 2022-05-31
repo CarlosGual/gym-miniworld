@@ -17,9 +17,11 @@ class Maze(MiniWorldEnv):
         num_cols=8,
         room_size=3,
         max_episode_steps=None,
-        task={},
+        task=None,
         **kwargs
     ):
+        if task is None:
+            task = {}
         self.num_rows = num_rows
         self.num_cols = num_cols
         self.room_size = room_size
@@ -128,24 +130,24 @@ class Maze(MiniWorldEnv):
         self._task = task
         self._generator = task['generator']
 
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        deepcopy = cls.__new__(cls)
-        memo[id(self)] = deepcopy
-
-        # This attributes don't support deepcopy directly
-        text_label_copy = self.__dict__["text_label"]
-        shadow_window_copy = self.__dict__["shadow_window"]
-        rooms_copy = self.__dict__["rooms"]
-        setattr(deepcopy, "text_label", text_label_copy)
-        setattr(deepcopy, "shadow_window", shadow_window_copy)
-        setattr(deepcopy, "rooms", rooms_copy)
-
-        # For the rest apply standart deepcopy
-        for k, v in self.__dict__.items():
-            if k not in ["text_label", "shadow_window", "rooms"]:
-                setattr(deepcopy, k, copy.deepcopy(v, memo))
-        return deepcopy
+    # def __deepcopy__(self, memo):
+    #     cls = self.__class__
+    #     deepcopy = cls.__new__(cls)
+    #     memo[id(self)] = deepcopy
+    #
+    #     # This attributes don't support deepcopy directly
+    #     text_label_copy = self.__dict__["text_label"]
+    #     shadow_window_copy = self.__dict__["shadow_window"]
+    #     rooms_copy = self.__dict__["rooms"]
+    #     setattr(deepcopy, "text_label", text_label_copy)
+    #     setattr(deepcopy, "shadow_window", shadow_window_copy)
+    #     setattr(deepcopy, "rooms", rooms_copy)
+    #
+    #     # For the rest apply standart deepcopy
+    #     for k, v in self.__dict__.items():
+    #         if k not in ["text_label", "shadow_window", "rooms"]:
+    #             setattr(deepcopy, k, copy.deepcopy(v, memo))
+    #     return deepcopy
 
     def __getstate__(self):
         """See `Object.__getstate__.
@@ -177,7 +179,7 @@ class MazeS3(Maze):
 
 
 class MazeS3Fast(Maze):
-    def __init__(self, forward_step=0.7, turn_step=45):
+    def __init__(self, task={}, forward_step=0.7, turn_step=45):
 
         # Parameters for larger movement steps, fast stepping
         params = DEFAULT_PARAMS.no_random()
@@ -191,5 +193,6 @@ class MazeS3Fast(Maze):
             num_cols=3,
             params=params,
             max_episode_steps=max_steps,
-            domain_rand=False
+            domain_rand=False,
+            task=task
         )
