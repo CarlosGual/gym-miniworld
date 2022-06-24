@@ -501,6 +501,9 @@ class MiniWorldEnv(gym.Env):
         # Frame buffer used to render observations
         self.obs_fb = FrameBuffer(obs_width, obs_height, 8)
 
+        # Frame buffer used to resnet
+        self.res_fb = FrameBuffer(224, 224, 8)
+
         # Frame buffer used for human visualization
         self.vis_fb = FrameBuffer(window_width, window_height, 16)
 
@@ -655,7 +658,7 @@ class MiniWorldEnv(gym.Env):
 
         return True
 
-    def step(self, action):
+    def step(self, action, resnet=None):
         """
         Perform one action and update the simulation
         """
@@ -702,7 +705,10 @@ class MiniWorldEnv(gym.Env):
             self.agent.carrying.dir = self.agent.dir
 
         # Generate the current camera image
-        obs = self.render_obs()
+        if resnet:
+            obs = self.render_obs(self.res_fb)
+        else:
+            obs = self.render_obs()
 
         # If the maximum time step count is reached
         if self.step_count >= self.max_episode_steps:

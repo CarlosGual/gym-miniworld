@@ -6,6 +6,7 @@ from ..miniworld import MiniWorldEnv, Room, RandGen
 from ..entity import Box, ImageFrame
 from ..params import DEFAULT_PARAMS
 
+
 class Maze(MiniWorldEnv):
     """
     Maze environment in which the agent has to reach a red box
@@ -28,12 +29,14 @@ class Maze(MiniWorldEnv):
         self.gap_size = 0.25
 
         # Initialize the meta learning variables
-        self.rand = RandGen() # I need to declare twice the random geneerator due to how the super class is initialized
+        self.rand = RandGen()  # I need to declare twice the random generator due to how the super class is initialized
         self._task = task
         self._generator = task.get('generator', self.rand.subset([(0, 1), (0, -1), (-1, 0), (1, 0)], 4))
 
         super().__init__(
             max_episode_steps=max_episode_steps or num_rows * num_cols * 24,
+            obs_width=224,
+            obs_height=224,
             **kwargs
         )
 
@@ -108,16 +111,35 @@ class Maze(MiniWorldEnv):
         # Generate the maze starting from the top-left corner
         visit(0, 0)
 
-        self.box = self.place_entity(Box(color='red'))
+        X = (self.num_cols - 0.5) * self.room_size + (self.num_cols - 1) * self.gap_size
+        Z = (self.num_rows - 0.5) * self.room_size + (self.num_rows - 1) * self.gap_size
+        self.box = self.place_entity(Box(color='red'), pos=np.array([X, 0, Z]))
 
-        self.place_agent()
+        X = 0.5 * self.room_size
+        Z = 0.5 * self.room_size
+        self.place_entity(self.agent, pos=np.array([X, 0, Z]), dir=0)
 
-    def step(self, action):
-        obs, reward, done, info = super().step(action)
+    def reward(self, done, fixed_penalty=0.1):
+        """
+        Custom reward per step including geometric distance and penalty per step
+        """
+        geo_dist = np.linalg.norm(self.box.pos - self.agent.pos)
+        reward = - np.log(geo_dist) + 1 - fixed_penalty
+
+        # If the agent reaches the target, give good amount of reward hehe
+        if done:
+            reward += 10
+
+        return reward
+
+    def step(self, action, resnet=True):
+        obs, _, done, info = super().step(action, resnet=resnet)
 
         if self.near(self.box):
-            reward += self._reward()
+            # reward += self._reward()
             done = True
+
+        reward = self.reward(done)
 
         return obs, reward, done, info
 
@@ -129,7 +151,6 @@ class Maze(MiniWorldEnv):
     def set_task(self, task):
         self._task = task
         self._generator = task['generator']
-
 
     def __getstate__(self):
         """See `Object.__getstate__.
@@ -160,8 +181,13 @@ class MazeS3(Maze):
         super().__init__(num_rows=3, num_cols=3, task=task)
 
 
+class MazeS5(Maze):
+    def __init__(self, task={}):
+        super().__init__(num_rows=5, num_cols=5, task=task)
+
+
 class MazeS3Fast(Maze):
-    def __init__(self, task={}, forward_step=0.7, turn_step=45):
+    def __init__(self, task={}, forward_step=1.5, turn_step=45):
 
         # Parameters for larger movement steps, fast stepping
         params = DEFAULT_PARAMS.no_random()
