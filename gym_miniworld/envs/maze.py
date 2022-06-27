@@ -119,27 +119,24 @@ class Maze(MiniWorldEnv):
         Z = 0.5 * self.room_size
         self.place_entity(self.agent, pos=np.array([X, 0, Z]), dir=0)
 
-    def reward(self, done, fixed_penalty=0.1):
+    def reward(self, fixed_penalty=0.1):
         """
         Custom reward per step including geometric distance and penalty per step
         """
         geo_dist = np.linalg.norm(self.box.pos - self.agent.pos)
         reward = - np.log(geo_dist) + 1 - fixed_penalty
 
-        # If the agent reaches the target, give good amount of reward hehe
-        if done:
-            reward += 10
-
         return reward
 
     def step(self, action, resnet=True):
         obs, _, done, info = super().step(action, resnet=resnet)
 
-        if self.near(self.box):
-            # reward += self._reward()
-            done = True
+        reward = self.reward()
 
-        reward = self.reward(done)
+        if self.near(self.box):
+            # High reward if the agent reaches the goal
+            reward += 10
+            done = True
 
         return obs, reward, done, info
 
@@ -187,7 +184,7 @@ class MazeS5(Maze):
 
 
 class MazeS3Fast(Maze):
-    def __init__(self, task={}, forward_step=0.8, turn_step=45):
+    def __init__(self, task={}, forward_step=0.99, turn_step=90):
 
         # Parameters for larger movement steps, fast stepping
         params = DEFAULT_PARAMS.no_random()
