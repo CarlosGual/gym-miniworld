@@ -111,13 +111,9 @@ class Maze(MiniWorldEnv):
         # Generate the maze starting from the top-left corner
         visit(0, 0)
 
-        X = (self.num_cols - 0.5) * self.room_size + (self.num_cols - 1) * self.gap_size
-        Z = (self.num_rows - 0.5) * self.room_size + (self.num_rows - 1) * self.gap_size
-        self.box = self.place_entity(Box(color='red'), pos=np.array([X, 0, Z]))
+        self.box = self.place_entity(Box(color='red'))
 
-        X = 0.5 * self.room_size
-        Z = 0.5 * self.room_size
-        self.place_entity(self.agent, pos=np.array([X, 0, Z]), dir=0)
+        self.place_agent()
 
     def reward(self, fixed_penalty=0.1):
         """
