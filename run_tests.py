@@ -7,6 +7,9 @@ import gym
 import gym_miniworld
 from gym_miniworld.wrappers import PyTorchObsWrapper, GreyscaleWrapper
 from gym_miniworld.entity import TextFrame
+import time
+
+init = time.time()
 
 env = gym.make('MiniWorld-Hallway-v0')
 first_obs = env.reset()
@@ -46,7 +49,7 @@ class TestText(gym_miniworld.envs.threerooms.ThreeRooms):
             dir=math.pi/2,
             str='this is a test'
         ))
-env = TestText()
+#env = TestText()
 
 # Basic collision detection test
 # Make sure the agent can never get outside of the room
@@ -61,20 +64,25 @@ for _ in range(30):
         assert z >= room.min_z and z <= room.max_z
 
 # Try loading each of the available environments
-for env_id in gym_miniworld.envs.env_ids:
-    if 'RemoteBot' in env_id:
+for env_id in ['MiniWorld-MazeS3Fast-v0']: #gym_miniworld.envs.env_ids:
+    if 'RemoteBot' in env_id or 'Sign' in env_id:
         continue
 
     print('Testing "' + env_id + '"')
     env = gym.make(env_id)
     env.domain_rand = True
     # Try multiple random restarts
-    for _ in range(15):
+    for i in range(100):
+        print('Run nº: {}'.format(i))
         env.reset()
         assert not env.intersect(env.agent, env.agent.pos, env.agent.radius)
         # Perform multiple random actions
-        for _ in range(0, 20):
+        for _ in range(0, 600):
             action = env.rand.int(0, env.action_space.n)
             obs, reward, done, info = env.step(action)
             if done:
                 env.reset()
+
+end = time.time()
+
+print('Duration={}'.format(end-init))

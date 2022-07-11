@@ -84,7 +84,7 @@ class Maze(MiniWorldEnv):
             visited.add(room)
 
             # Reorder the neighbors to visit in a random order
-            neighbors = self._generator
+            neighbors = [(0, -1), (-1, 0), (0, 1), (1, 0)] #self._generator
 
             # For each possible neighbor
             for dj, di in neighbors:
@@ -112,7 +112,7 @@ class Maze(MiniWorldEnv):
         visit(0, 0)
 
         X = (self.num_cols - 0.5) * self.room_size + (self.num_cols - 1) * self.gap_size
-        Z = (self.num_rows - 0.5) * self.room_size + (self.num_rows - 1) * self.gap_size
+        Z = 0.5 * self.room_size
         self.box = self.place_entity(Box(color='red'), pos=np.array([X, 0, Z]))
 
         X = 0.5 * self.room_size
