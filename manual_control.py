@@ -34,7 +34,7 @@ view_mode = 'top' if args.top_view else 'agent'
 env.reset()
 
 # Create the display window
-env.render('pyglet', view=view_mode)
+env.render(view=view_mode)
 
 def step(action):
     print('step {}/{}: {}'.format(env.step_count+1, env.max_episode_steps, env.actions(action).name))
@@ -48,7 +48,7 @@ def step(action):
         print('done!')
         env.reset()
 
-    env.render('pyglet', view=view_mode)
+    env.render(view=view_mode)
 
 @env.unwrapped.window.event
 def on_key_press(symbol, modifiers):
@@ -91,7 +91,7 @@ def on_key_release(symbol, modifiers):
 
 @env.unwrapped.window.event
 def on_draw():
-    env.render('pyglet', view=view_mode)
+    env.render(view=view_mode)
 
 @env.unwrapped.window.event
 def on_close():

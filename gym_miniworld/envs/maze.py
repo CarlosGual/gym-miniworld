@@ -184,7 +184,7 @@ class MazeS5(Maze):
 
 
 class MazeS3Fast(Maze):
-    def __init__(self, task={}, forward_step=0.99, turn_step=90):
+    def __init__(self, task={}, forward_step=0.7, turn_step=45):
 
         # Parameters for larger movement steps, fast stepping
         params = DEFAULT_PARAMS.no_random()
