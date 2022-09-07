@@ -128,14 +128,14 @@ class Maze(MiniWorldEnv):
 
         return reward
 
-    def step(self, action, resnet=True):
-        obs, _, done, info = super().step(action, resnet=resnet)
+    def step(self, action, resnet=False):
+        obs, reward, done, info = super().step(action, resnet=resnet)
 
-        reward = self.reward()
+        # reward = self.reward()
 
         if self.near(self.box):
             # High reward if the agent reaches the goal
-            reward += 10
+            reward += 1
             done = True
 
         return obs, reward, done, info
