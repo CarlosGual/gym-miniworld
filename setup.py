@@ -8,7 +8,7 @@ setup(
     install_requires=[
         'gym<=0.17.2',
         'numpy>=1.10.0',
-        'pyglet>=1.5.11',
+        'pyglet == 1.5.27',
     ],
     # Include textures and meshes in the package
     include_package_data=True
