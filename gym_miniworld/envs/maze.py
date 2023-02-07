@@ -35,8 +35,6 @@ class Maze(MiniWorldEnv):
 
         super().__init__(
             max_episode_steps=max_episode_steps or num_rows * num_cols * 24,
-            obs_width=224,
-            obs_height=224,
             **kwargs
         )
 
@@ -112,13 +110,13 @@ class Maze(MiniWorldEnv):
         visit(0, 0)
 
         X = (self.num_cols - 0.5) * self.room_size + (self.num_cols - 1) * self.gap_size
-        Z = 0.5 * self.room_size
+        Z = (self.num_rows - 0.5) * self.room_size + (self.num_rows - 1) * self.gap_size
         self.box = self.place_entity(Box(color='red'), pos=np.array([X, 0, Z]))
 
         X = 0.5 * self.room_size
         Z = 0.5 * self.room_size
         self.place_entity(self.agent, pos=np.array([X, 0, Z]), dir=0)
-
+        
     def reward(self, fixed_penalty=0.1):
         """
         Custom reward per step including geometric distance and penalty per step
@@ -191,7 +189,7 @@ class MazeS3Fast(Maze):
         params.set('forward_step', forward_step)
         params.set('turn_step', turn_step)
 
-        max_steps = 300
+        max_steps = 600
 
         super().__init__(
             num_rows=3,

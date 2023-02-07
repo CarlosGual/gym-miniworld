@@ -461,7 +461,8 @@ class MiniWorldEnv(gym.Env):
         window_width=800,
         window_height=600,
         params=DEFAULT_PARAMS,
-        domain_rand=False
+        domain_rand=False,
+        seed=None
     ):
         # Action enumeration for this environment
         self.actions = MiniWorldEnv.Actions
@@ -522,7 +523,7 @@ class MiniWorldEnv(gym.Env):
         )
 
         # Initialize the state
-        self.seed()
+        self.seed(seed=seed)
         self.reset()
 
     def close(self):
@@ -1320,7 +1321,7 @@ class MiniWorldEnv(gym.Env):
 
         return vis_objs
 
-    def render(self, mode='human', close=False, view='agent'):
+    def render(self, mode='human', close=False, view='top'):
         """
         Render the environment for human viewing
         """
